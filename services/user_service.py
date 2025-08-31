@@ -1,9 +1,10 @@
 from passlib.context import CryptContext
-from datetime import datetime, timedelta
+from datetime import datetime
 from jose import JWTError, jwt
 from pymongo import ReturnDocument
 from bson import ObjectId
 from typing import Optional
+from fastapi import HTTPException
 
 from utils.format_time import formatTime
 from configs.mongodb_config import MongodbSettings
@@ -40,7 +41,7 @@ def create_access_token(data: dict, expires_minutes: int = ACCESS_TOKEN_EXPIRE_M
 async def register_user(user: UserCreate):
     existing = await collection_user.find_one({"email": user.email})
     if existing:
-        return {"error": "User already exists"}
+        raise HTTPException(status_code=400, detail="User already exists")
 
     hashed_password = get_password_hash(user.password)
     user_doc = {

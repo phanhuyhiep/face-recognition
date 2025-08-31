@@ -3,6 +3,7 @@ import uvicorn
 from configs.core_config import CoreSettings
 from fastapi import FastAPI
 from routes.user_routes import router as user_router
+from routes.department_routes import router as department_router
 
 app = FastAPI(title="Face Recognition API", version="0.1.0")
 
@@ -11,6 +12,7 @@ host_project = CoreSettings.HOST
 
 
 app.include_router(user_router)
+app.include_router(department_router)
 
 
 @app.get("/")
