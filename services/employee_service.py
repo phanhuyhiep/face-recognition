@@ -1,7 +1,9 @@
 import numpy as np
 
 from datetime import datetime
-from fastapi import UploadFile, HTTPException
+from fastapi import UploadFile, HTTPException, Depends
+from typing import Optional
+from bson import ObjectId
 
 from configs.index import db
 from utils.minio_client import upload_to_minio
@@ -42,3 +44,70 @@ async def add_employee(employee: EmployeeCreate, file: UploadFile, user_id: str)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to add employee: {str(e)}")
+
+
+async def get_employees(user_id: str, page: int = 1, limit: int = 10, department_id: Optional[str] = None):
+    employees = []
+    skip = (page - 1) * limit
+
+    query = {"user_id": str(user_id)}
+    if department_id:
+        try:
+            query["department_id"] = str(department_id)
+        except Exception:
+            return formatResponse(
+                data=[],
+                success=False,
+                status_code=400,
+                message="Invalid department_id"
+            )
+
+    cursor = collection_employee.find(query).skip(skip).limit(limit)
+    async for doc in cursor:
+        doc["_id"] = str(doc["_id"])
+        doc["user_id"] = str(doc["user_id"])
+        employees.append(EmployeeDB(**doc))
+
+    total_docs = await collection_employee.count_documents(query)
+    total_pages = (total_docs + limit - 1) // limit
+
+    return formatResponse(
+        data=employees,
+        page=page,
+        limit=limit,
+        totalPages=total_pages,
+        success=True,
+        status_code=200,
+        message="Employees retrieved successfully"
+    )
+
+def is_valid_object_id(oid: str) -> bool:
+    return ObjectId.is_valid(oid)
+
+async def get_employee_by_id(employee_id: str, user_id: str):
+    if not is_valid_object_id(employee_id):
+        return formatResponse(
+            data=None,
+            success=False,
+            status_code=400,
+            message="Invalid employee_id"
+        )
+    doc = await collection_employee.find_one({
+        "_id": ObjectId(employee_id),
+        "user_id": str(user_id)
+    })
+    if not doc:
+        return formatResponse(
+            data=None,
+            success=False,
+            status_code=404,
+            message="Employee not found"
+        )
+    doc["_id"] = str(doc["_id"])
+    doc["user_id"] = str(doc["user_id"])
+    return formatResponse(
+        data=EmployeeDB(**doc),
+        success=True,
+        status_code=200,
+        message="Employee retrieved successfully"
+    )
