@@ -7,3 +7,4 @@ passlib[bcrypt]==1.7.4
 python-jose==3.3.0
 pydantic==2.7.4
 pydantic-settings==2.3.3
+bcrypt==4.1.2

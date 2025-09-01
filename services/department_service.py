@@ -15,12 +15,12 @@ from utils.format_response import formatResponse
 time = datetime.utcnow()
 collection_department = db["department"]
 
-async def list_departments(department_id: Optional[str] = None, page: int = 1, limit: int = 10):
+async def list_departments(user_id: str, page: int = 1, limit: int = 10, department_id: Optional[str] = None):
     departments = []
-
+    print("department_id:", department_id)
     if department_id:
         try:
-            doc = await collection_department.find_one({"_id": ObjectId(department_id)})
+            doc = await collection_department.find_one({"user_id": user_id, "_id": ObjectId(department_id)})
             if doc:
                 doc["_id"] = str(doc["_id"])
                 departments.append(DepartmentDB(**doc))
@@ -38,7 +38,7 @@ async def list_departments(department_id: Optional[str] = None, page: int = 1, l
         async for doc in cursor:
             doc["_id"] = str(doc["_id"])
             departments.append(DepartmentDB(**doc))
-        total_docs = await collection_department.count_documents({})
+        total_docs = await collection_department.count_documents({"user_id": user_id})
 
     total_pages = (total_docs + limit - 1) // limit if not department_id else 1
 
@@ -52,9 +52,10 @@ async def list_departments(department_id: Optional[str] = None, page: int = 1, l
         message="Departments retrieved successfully"
     )
 
-async def add_department(name: str, description: Optional[str] = None):
+async def add_department(name: str, user_id: str, description: Optional[str] = None):
     department_doc = {
         "name": name,
+        "user_id": user_id,
         "created_at": formatTime(datetime.utcnow()),
     }
     if description:
