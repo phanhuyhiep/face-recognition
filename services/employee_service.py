@@ -6,7 +6,7 @@ from typing import Optional
 from bson import ObjectId
 
 from configs.index import db
-from utils.minio_client import upload_to_minio
+from utils.minio_client import upload_to_minio, delete_from_minio
 from models.employee.employee_model import EmployeeCreate, EmployeeDB
 from utils.format_response import formatResponse
 from services.user_service import get_current_user
@@ -111,3 +111,32 @@ async def get_employee_by_id(employee_id: str, user_id: str):
         status_code=200,
         message="Employee retrieved successfully"
     )
+
+
+async def update_employee(employee_id: str, update_data: dict, file: UploadFile = None):
+    try:
+        employee = await collection_employee.find_one({"_id": ObjectId(employee_id)})
+        if not employee:
+            return formatResponse(data=[], success=False, status_code=404, message="Employee not found")
+        if file:
+            old_image_url = employee.get("image_url")
+            if old_image_url:
+                await delete_from_minio(old_image_url)
+            new_image_url = await upload_to_minio(file)
+            update_data["image_url"] = new_image_url
+            update_data["embedding"] = generate_fake_embedding()
+
+        update_data["updated_at"] = int(datetime.utcnow().timestamp())
+        await collection_employee.update_one({"_id": ObjectId(employee_id)}, {"$set": update_data})
+
+        updated_employee = await collection_employee.find_one({"_id": ObjectId(employee_id)})
+        updated_employee["_id"] = str(updated_employee["_id"])
+
+        return formatResponse(
+            data=updated_employee,
+            success=True,
+            status_code=200,
+            message="Employee updated successfully"
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update employee: {str(e)}")
