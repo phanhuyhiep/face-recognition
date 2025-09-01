@@ -4,6 +4,8 @@ from typing import List
 from fastapi import UploadFile, HTTPException
 from datetime import datetime, timezone
 
+from typing import Optional
+from models.attendance.attendance_model import AttendanceDB
 from configs.index import db
 from utils.minio_client import upload_to_minio
 from utils.format_response import formatResponse
@@ -86,3 +88,42 @@ async def add_attendance(file: UploadFile, current_user: UserDB):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to add attendance: {str(e)}")
+
+
+async def get_attendance(
+    user_id: str,
+    page: int = 1,
+    limit: int = 10,
+    date_start: Optional[int] = None,
+    date_end: Optional[int] = None
+):
+    try:
+        skip = (page - 1) * limit
+        attendances = []
+        query = {"user_id": str(user_id)}
+        if date_start is not None or date_end is not None:
+            date_filter = {}
+            if date_start is not None:
+                date_filter["$gte"] = date_start
+            if date_end is not None:
+                date_filter["$lte"] = date_end
+            query["check_in"] = date_filter
+        total_docs = await collection_attendance.count_documents(query)
+        total_pages = (total_docs + limit - 1) // limit
+
+        cursor = collection_attendance.find(query).sort("check_in", -1).skip(skip).limit(limit)
+        async for doc in cursor:
+            doc["_id"] = str(doc["_id"])
+            attendances.append(AttendanceDB(**doc))
+        return formatResponse(
+            data=attendances,
+            page=page,
+            limit=limit,
+            totalPages=total_pages,
+            success=True,
+            status_code=200,
+            message="Attendance retrieved successfully"
+        )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get attendance: {str(e)}")

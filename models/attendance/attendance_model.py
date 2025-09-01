@@ -7,10 +7,13 @@ from models.objectid.objectid_model import PyObjectId
 class AttendanceBase(BaseModel):
     user_id: str
     employee_id: Optional[str] = None
+    name: Optional[str] = None
+    department_id: Optional[str] = None
+    department_name: Optional[str] = None
     check_in: Optional[int] = None
     check_out: Optional[int] = None
-    check_in_face_url: Optional[str] = None
-    check_out_face_url: Optional[str] = None
+    check_in_face: Optional[str] = None
+    check_out_face: Optional[str] = None
 
 class AttendanceCreate(AttendanceBase):
     face_file_url: Optional[str] = None
