@@ -28,8 +28,11 @@ async def api_login(credentials: LoginRequest):
 
 @router.get("/profile")
 async def get_profile(current_user: UserDB = Depends(get_current_user)):
+    user_data = current_user.dict(exclude={"password_hash"})
+    if "id" in user_data and isinstance(user_data["id"], object):
+        user_data["id"] = str(user_data["id"])
     return formatResponse(
-        data=current_user,
+        data= user_data,
         success=True,
         status_code=200,
         message="Current user profile"
