@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from pydantic import BaseModel
-from services.user_service import register_user, login_user
+from services.user_service import register_user, login_user, get_current_user
 from models.user.user_model import UserCreate, UserDB, response_model
+from utils.format_response import formatResponse
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -24,3 +25,12 @@ async def api_login(credentials: LoginRequest):
     if isinstance(result, dict) and result.get("error"):
         raise HTTPException(status_code=401, detail=result["error"])
     return result
+
+@router.get("/profile")
+async def get_profile(current_user: UserDB = Depends(get_current_user)):
+    return formatResponse(
+        data=current_user,
+        success=True,
+        status_code=200,
+        message="Current user profile"
+    )
