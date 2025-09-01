@@ -15,12 +15,13 @@ class DepartmentBase(BaseModel):
 
 
 class DepartmentCreate(DepartmentBase):
-    pass
+    user_id: str = Field(..., example="68b3f70708171bd88234e9da")
 
 
 class DepartmentDB(DepartmentBase):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-
+    user_id: str = Field(..., example="68b3f70708171bd88234e9da")
+    
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True

@@ -20,6 +20,7 @@ class MongodbSettings:
         "user": os.environ.get("COLLECTION_USER"),
         "department": os.environ.get("COLLECTION_DEPARTMENT"),
         "face": os.environ.get("COLLECTION_FACE"),
+        "employee": os.environ.get("COLLECTION_EMPLOYEE"),
     }
 
 required_vars = [

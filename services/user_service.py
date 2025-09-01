@@ -4,7 +4,8 @@ from jose import JWTError, jwt
 from pymongo import ReturnDocument
 from bson import ObjectId
 from typing import Optional
-from fastapi import HTTPException
+from fastapi import HTTPException, Depends, Request
+from fastapi.security import OAuth2PasswordBearer
 
 from utils.format_time import formatTime
 from configs.mongodb_config import MongodbSettings
@@ -19,6 +20,7 @@ SECRET_KEY = CoreSettings.SECRET_KEY
 ALGORITHM = CoreSettings.ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = CoreSettings.ACCESS_TOKEN_EXPIRE_MINUTES
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 time = datetime.utcnow()
 collection_user = db["user"]
 
@@ -37,6 +39,28 @@ def create_access_token(data: dict, expires_minutes: int = ACCESS_TOKEN_EXPIRE_M
     to_encode.update({"exp": expire_ts})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
+async def get_current_user(request: Request):
+    try:
+        auth_header = request.headers.get("Authorization")
+        if not auth_header:
+            raise HTTPException(status_code=401, detail="Authorization header missing")
+
+        token = auth_header.strip()  # lấy nguyên token, không cần "Bearer "
+
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        
+        user = await collection_user.find_one({"_id": ObjectId(user_id)})
+        if not user:
+            raise HTTPException(status_code=401, detail="User not found")
+
+        user["_id"] = str(user["_id"])
+        return UserDB(**user)
+
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
 async def register_user(user: UserCreate):
     existing = await collection_user.find_one({"email": user.email})
@@ -47,7 +71,6 @@ async def register_user(user: UserCreate):
     user_doc = {
         "username": user.username,
         "email": user.email,
-        "department_id": user.department_id,
         "password_hash": hashed_password,
         "created_at": formatTime(time),
     }
