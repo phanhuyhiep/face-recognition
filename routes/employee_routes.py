@@ -3,7 +3,7 @@ from typing import Optional
 
 from models.employee.employee_model import EmployeeCreate, EmployeeDB
 from models.user.user_model import UserDB
-from services.employee_service import add_employee, get_employees, get_employee_by_id, update_employee
+from services.employee_service import add_employee, get_employees, get_employee_by_id, update_employee, delete_employee
 from services.user_service import get_current_user
 
 router = APIRouter(prefix="/employee", tags=["employee"])
@@ -79,3 +79,12 @@ async def api_update_employee(
         update_data["address"] = address
 
     return await update_employee(employee_id, update_data, file)
+
+
+@router.delete("/delete_employee/{employee_id}", response_model=dict)
+async def api_delete_employee(
+    employee_id: str,
+    current_user: UserDB = Depends(get_current_user)
+):
+    result = await delete_employee(employee_id)
+    return result

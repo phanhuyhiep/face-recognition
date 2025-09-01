@@ -140,3 +140,30 @@ async def update_employee(employee_id: str, update_data: dict, file: UploadFile 
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to update employee: {str(e)}")
+
+
+async def delete_employee(employee_id: str):
+    try:
+        employee = await collection_employee.find_one({"_id": ObjectId(employee_id)})
+        if not employee:
+            return formatResponse(
+                data=[],
+                success=False,
+                status_code=404,
+                message="Employee not found"
+            )
+
+        image_url = employee.get("image_url")
+        if image_url:
+            await delete_from_minio(image_url)
+            
+        await collection_employee.delete_one({"_id": ObjectId(employee_id)})
+
+        return formatResponse(
+            data=[],
+            success=True,
+            status_code=200,
+            message="Employee deleted successfully"
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to delete employee: {str(e)}")
