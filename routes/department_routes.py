@@ -5,7 +5,7 @@ from services.department_service import list_departments, add_department, edit_d
 from services.user_service import get_current_user
 from models.user.user_model import UserDB
 
-router = APIRouter(prefix="/department", tags=["auth"])
+router = APIRouter(prefix="/department", tags=["department"])
 
 # ------------------- List Department -------------------
 @router.get("/")
