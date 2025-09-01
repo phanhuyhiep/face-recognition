@@ -47,7 +47,6 @@ async def register_user(user: UserCreate):
     user_doc = {
         "username": user.username,
         "email": user.email,
-        "department_id": user.department_id,
         "password_hash": hashed_password,
         "created_at": formatTime(time),
     }
