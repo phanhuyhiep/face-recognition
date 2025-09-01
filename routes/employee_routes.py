@@ -12,6 +12,7 @@ router = APIRouter(prefix="/employee", tags=["employee"])
 async def create_employee(
     name: str = Form(...),
     department_id: str = Form(...),
+    department_name: str = Form(...),
     email: str = Form(...),
     address: Optional[str] = Form(None),
     file: UploadFile = File(...),
@@ -63,6 +64,7 @@ async def api_update_employee(
     employee_id: str,
     name: Optional[str] = Form(None),
     department_id: Optional[str] = Form(None),
+    department_name: Optional[str] = Form(None),
     email: Optional[str] = Form(None),
     address: Optional[str] = Form(None),
     file: Optional[UploadFile] = File(None),
@@ -73,6 +75,8 @@ async def api_update_employee(
         update_data["name"] = name
     if department_id is not None:
         update_data["department_id"] = department_id
+    if department_name is not None:
+        update_data["department_name"] = department_name
     if email is not None:
         update_data["email"] = email
     if address is not None:
