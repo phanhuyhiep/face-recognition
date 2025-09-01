@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from routes.user_routes import router as user_router
 from routes.department_routes import router as department_router
 from routes.employee_routes import router as employee_router
+from routes.attendance_routes import router as attendance_router
 
 app = FastAPI(title="Face Recognition API", version="0.1.0")
 
@@ -15,6 +16,7 @@ host_project = CoreSettings.HOST
 app.include_router(user_router)
 app.include_router(department_router)
 app.include_router(employee_router)
+app.include_router(attendance_router)
 
 
 @app.get("/")

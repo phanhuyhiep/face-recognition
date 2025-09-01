@@ -27,6 +27,7 @@ async def add_employee(employee: EmployeeCreate, file: UploadFile, user_id: str)
             "email": employee.email,
             "address": employee.address,
             "department_id": employee.department_id,
+            "department_name": employee.department_name,
             "image_url": image_url,
             "embedding": embedding,
             "created_at": formatTime(datetime.utcnow()),

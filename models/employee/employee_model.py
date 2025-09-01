@@ -10,6 +10,7 @@ from models.objectid.objectid_model import PyObjectId
 class EmployeeBase(BaseModel):
     name: str = Field(..., example="Nguyen Van A")
     department_id: str = Field(..., example="68b435933edb031a0c555edb")
+    department_name: Optional[str] = Field(None, example="IT")
     email: str = Field(..., example="vana@example.com")
     address: Optional[str] = Field(None, example="123 Lê Lợi, Hà Nội")
 
