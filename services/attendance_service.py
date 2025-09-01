@@ -71,6 +71,7 @@ async def add_attendance(file: UploadFile, current_user: UserDB):
             "user_id": str(current_user.id),
             "name": matched_employee["name"],
             "department_id": matched_employee["department_id"],
+            "department_name": matched_employee["department_name"],
             "check_in": now_ts,
             "check_in_face": face_image_url,
             "check_out": None,
