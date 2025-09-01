@@ -15,7 +15,6 @@ async def api_list_departments(
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=100)
 ):
-    print("Current User ID:", current_user)
     result = await list_departments(str(current_user.id), page, limit, department_id)
     if isinstance(result, dict) and result.get("error"):
         raise HTTPException(status_code=400, detail=result["error"])
