@@ -21,22 +21,22 @@ async def api_list_departments(
     return result
 
 @router.post("/add_department")
-async def api_add_department(department: DepartmentCreate):
-    result = await add_department(department.name, department.user_id, department.description)
+async def api_add_department(department: DepartmentCreate, current_user: UserDB = Depends(get_current_user)):
+    result = await add_department(department.name, current_user.id, department.description)
     if isinstance(result, dict) and result.get("error"):
         raise HTTPException(status_code=400, detail=result["error"])
     return result
 
 @router.put("/edit_department/{department_id}")
-async def api_edit_department(department_id: str, payload: DepartmentBase):
-    result = await edit_department(department_id, name=payload.name, description=payload.description)
+async def api_edit_department(department_id: str, payload: DepartmentBase,  current_user: UserDB = Depends(get_current_user)):
+    result = await edit_department(department_id, current_user.id, payload.name, payload.description)
     if isinstance(result, dict) and result.get("error"):
         raise HTTPException(status_code=400, detail=result["error"])
     return result
 
 @router.delete("/delete_department/{department_id}")
-async def api_delete_department(department_id: str):
-    result = await delete_department(department_id)
+async def api_delete_department(department_id: str, current_user: UserDB = Depends(get_current_user)):
+    result = await delete_department(department_id, current_user.id)
     if isinstance(result, dict) and result.get("error"):
         raise HTTPException(status_code=400, detail=result["error"])
     return result

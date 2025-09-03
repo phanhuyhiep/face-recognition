@@ -15,7 +15,7 @@ class DepartmentBase(BaseModel):
 
 
 class DepartmentCreate(DepartmentBase):
-    user_id: str = Field(..., example="68b3f70708171bd88234e9da")
+    pass
 
 
 class DepartmentDB(DepartmentBase):

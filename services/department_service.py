@@ -17,7 +17,6 @@ collection_department = db["department"]
 
 async def list_departments(user_id: str, page: int = 1, limit: int = 10, department_id: Optional[str] = None):
     departments = []
-    print("department_id:", department_id)
     if department_id:
         try:
             doc = await collection_department.find_one({"user_id": user_id, "_id": ObjectId(department_id)})
@@ -55,7 +54,7 @@ async def list_departments(user_id: str, page: int = 1, limit: int = 10, departm
 async def add_department(name: str, user_id: str, description: Optional[str] = None):
     department_doc = {
         "name": name,
-        "user_id": user_id,
+        "user_id": str(user_id),
         "created_at": formatTime(datetime.utcnow()),
     }
     if description:
@@ -70,7 +69,7 @@ async def add_department(name: str, user_id: str, description: Optional[str] = N
         message = "Department created successfully",
     )
 
-async def edit_department(department_id: str, name: Optional[str] = None, description: Optional[str] = None):
+async def edit_department(department_id: str, user_id: str, name: Optional[str] = None, description: Optional[str] = None):
     update_doc = {}
     if name:
         update_doc["name"] = name
@@ -80,8 +79,14 @@ async def edit_department(department_id: str, name: Optional[str] = None, descri
     if not update_doc:
         return {"error": "Nothing to update"}
 
+    department = await collection_department.find_one(
+        {"_id": ObjectId(department_id), "user_id": str(user_id)}
+    )
+    if not department:
+        return {"error": "Department not found or not authorized"}
+
     result = await collection_department.update_one(
-        {"_id": ObjectId(department_id)},
+        {"_id": ObjectId(department_id), "user_id": str(user_id)},
         {"$set": update_doc}
     )
     if result.matched_count == 0:
@@ -96,8 +101,13 @@ async def edit_department(department_id: str, name: Optional[str] = None, descri
         message="Department updated successfully"
     )
 
-async def delete_department(department_id: str):
-    result = await collection_department.delete_one({"_id": ObjectId(department_id)})
+async def delete_department(department_id: str, user_id: str):
+    department = await collection_department.find_one(
+        {"_id": ObjectId(department_id), "user_id": str(user_id)}
+    )
+    if not department:
+        return {"error": "Department not found or not authorized"}
+    result = await collection_department.delete_one({"_id": ObjectId(department_id), "user_id": str(user_id)})
     if result.deleted_count == 0:
         return {"error": "Department not found"}
 
