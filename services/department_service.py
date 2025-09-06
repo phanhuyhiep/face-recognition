@@ -11,8 +11,8 @@ from models.department.department_model import DepartmentCreate, DepartmentDB
 from configs.core_config import CoreSettings
 from configs.index import db
 from utils.format_response import formatResponse
+from utils.datetime import current_time_vn_by_timestamp
 
-time = datetime.utcnow()
 collection_department = db["department"]
 
 async def list_departments(user_id: str, page: int = 1, limit: int = 10, department_id: Optional[str] = None):
@@ -55,7 +55,7 @@ async def add_department(name: str, user_id: str, description: Optional[str] = N
     department_doc = {
         "name": name,
         "user_id": str(user_id),
-        "created_at": formatTime(datetime.utcnow()),
+        "created_at": current_time_vn_by_timestamp(),
     }
     if description:
         department_doc["description"] = description

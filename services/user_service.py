@@ -7,12 +7,12 @@ from typing import Optional
 from fastapi import HTTPException, Depends, Request
 from fastapi.security import OAuth2PasswordBearer
 
-from utils.format_time import formatTime
 from configs.mongodb_config import MongodbSettings
 from models.user.user_model import UserCreate, UserDB
 from configs.core_config import CoreSettings
 from configs.index import db
 from utils.format_response import formatResponse
+from utils.datetime import current_time_vn_by_timestamp
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -21,7 +21,6 @@ ALGORITHM = CoreSettings.ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = CoreSettings.ACCESS_TOKEN_EXPIRE_MINUTES
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-time = datetime.utcnow()
 collection_user = db["user"]
 
 def get_password_hash(password: str) -> str:
@@ -34,8 +33,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def create_access_token(data: dict, expires_minutes: int = ACCESS_TOKEN_EXPIRE_MINUTES):
     to_encode = data.copy()
-    now_ts = formatTime()
-    expire_ts = now_ts + expires_minutes * 60
+    expire_ts = current_time_vn_by_timestamp() + expires_minutes * 60
     to_encode.update({"exp": expire_ts})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -45,7 +43,7 @@ async def get_current_user(request: Request):
         if not auth_header:
             raise HTTPException(status_code=401, detail="Authorization header missing")
 
-        token = auth_header.strip()  # lấy nguyên token, không cần "Bearer "
+        token = auth_header.strip()
 
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: str = payload.get("sub")
@@ -72,7 +70,7 @@ async def register_user(user: UserCreate):
         "username": user.username,
         "email": user.email,
         "password_hash": hashed_password,
-        "created_at": formatTime(time),
+        "created_at": current_time_vn_by_timestamp(),
     }
 
     result = await collection_user.insert_one(user_doc)

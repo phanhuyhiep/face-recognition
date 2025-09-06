@@ -10,10 +10,9 @@ from utils.minio_client import upload_to_minio, delete_from_minio
 from models.employee.employee_model import EmployeeCreate, EmployeeDB
 from utils.format_response import formatResponse
 from services.user_service import get_current_user
-from utils.format_time import formatTime
+from utils.datetime import current_time_vn_by_timestamp
 
 collection_employee = db["employee"]
-time = datetime.utcnow()
 
 def generate_fake_embedding(dim: int = 128) -> list:
     return np.random.rand(dim).tolist()
@@ -30,7 +29,7 @@ async def add_employee(employee: EmployeeCreate, file: UploadFile, user_id: str)
             "department_name": employee.department_name,
             "image_url": image_url,
             "embedding": embedding,
-            "created_at": formatTime(datetime.utcnow()),
+            "created_at": current_time_vn_by_timestamp(),
             "user_id": str(user_id)
         }
         result = await collection_employee.insert_one(employee_doc)
@@ -127,7 +126,7 @@ async def update_employee(employee_id: str, update_data: dict, file: UploadFile 
             update_data["image_url"] = new_image_url
             update_data["embedding"] = generate_fake_embedding()
 
-        update_data["updated_at"] = int(datetime.utcnow().timestamp())
+        update_data["updated_at"] = current_time_vn_by_timestamp()
         await collection_employee.update_one({"_id": ObjectId(employee_id)}, {"$set": update_data})
 
         updated_employee = await collection_employee.find_one({"_id": ObjectId(employee_id)})

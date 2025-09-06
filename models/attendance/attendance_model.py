@@ -1,8 +1,8 @@
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from datetime import datetime
 from bson import ObjectId
 from models.objectid.objectid_model import PyObjectId
+from utils.datetime import current_time_vn_by_timestamp
 
 class AttendanceBase(BaseModel):
     user_id: str
@@ -21,8 +21,8 @@ class AttendanceCreate(AttendanceBase):
 
 class AttendanceDB(AttendanceBase):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    created_at: int = Field(default_factory=lambda: int(datetime.utcnow().timestamp()))
-    updated_at: int = Field(default_factory=lambda: int(datetime.utcnow().timestamp()))
+    created_at: int = Field(default_factory=current_time_vn_by_timestamp)
+    updated_at: int = Field(default_factory=current_time_vn_by_timestamp)
 
     class Config:
         populate_by_name = True

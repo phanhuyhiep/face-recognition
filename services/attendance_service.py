@@ -1,4 +1,5 @@
 import numpy as np
+import logging
 
 from typing import List
 from fastapi import UploadFile, HTTPException
@@ -10,9 +11,19 @@ from configs.index import db
 from utils.minio_client import upload_to_minio
 from utils.format_response import formatResponse
 from models.user.user_model import UserDB
+from configs.core_config import CoreSettings
+from utils.datetime import current_time_vn_by_timestamp
 
 collection_employee = db["employee"]
 collection_attendance = db["attendance"]
+
+TIME_ZONE = CoreSettings.TIME_ZONE
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 def generate_fake_embedding(dim: int = 128) -> List[float]:
     return np.random.rand(dim).tolist()
@@ -35,17 +46,16 @@ async def add_attendance(file: UploadFile, current_user: UserDB):
             if sim > max_sim:
                 max_sim = sim
                 matched_employee = emp
-
         if not matched_employee or max_sim < 0.7:
+            logger.info("No matching employee found")
             return formatResponse(
                 data=None,
                 success=False,
                 status_code=404,
                 message="No matching employee found"
             )
-
-        now_ts = int(datetime.utcnow().timestamp())
-        today = datetime.utcnow().date()
+        now_ts = current_time_vn_by_timestamp()
+        today = datetime.fromtimestamp(now_ts, TIME_ZONE).date()
         last_attendance = await collection_attendance.find_one(
             {"employee_id": str(matched_employee["_id"]),
              "user_id": str(current_user.id)},
@@ -53,12 +63,13 @@ async def add_attendance(file: UploadFile, current_user: UserDB):
         )
 
         if last_attendance:
-            last_checkin_date = datetime.fromtimestamp(last_attendance["check_in"], tz=timezone.utc).date()
+            last_checkin_date = datetime.fromtimestamp(last_attendance["check_in"], tz = TIME_ZONE).date()
             if last_checkin_date == today:
                 await collection_attendance.update_one(
                     {"_id": last_attendance["_id"]},
                     {"$set": {"check_out": now_ts, "check_out_face": face_image_url}}
                 )
+                logger.info(f"Check-out updated for employee {matched_employee['name']} (checkout timestamp: {now_ts})")
                 return formatResponse(
                     data={"employee_id": str(matched_employee["_id"]), "action": "check_out_updated"},
                     success=True,
@@ -79,7 +90,7 @@ async def add_attendance(file: UploadFile, current_user: UserDB):
         }
         result = await collection_attendance.insert_one(attendance_doc)
         attendance_doc["_id"] = str(result.inserted_id)
-
+        logger.info(f"Attendance recorded for employee: {matched_employee['name']} (checkin timestamp: {now_ts})")
         return formatResponse(
             data=attendance_doc,
             success=True,
