@@ -23,6 +23,6 @@ class DepartmentDB(DepartmentBase):
     user_id: str = Field(..., example="68b3f70708171bd88234e9da")
     
     class Config:
-        allow_population_by_field_name = True
+        populate_by_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
