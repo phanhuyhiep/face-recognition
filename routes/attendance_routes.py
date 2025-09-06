@@ -13,7 +13,7 @@ async def api_check_face(file: UploadFile, current_user: UserDB = Depends(get_cu
     return await add_attendance(file, current_user)
 
 
-@router.get("/", response_model=dict)
+@router.get("/list_attendance", response_model=dict)
 async def api_get_attendance(
     current_user: UserDB = Depends(get_current_user),
     page: int = Query(1, ge=1),
