@@ -22,6 +22,7 @@ async def create_employee(
         employee = EmployeeCreate(
             name=name,
             department_id=department_id,
+            department_name=department_name,
             email=email,
             address=address,
         )

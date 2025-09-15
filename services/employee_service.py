@@ -14,13 +14,13 @@ from utils.datetime import current_time_vn_by_timestamp
 
 collection_employee = db["employee"]
 
-def generate_fake_embedding(dim: int = 128) -> list:
-    return np.random.rand(dim).tolist()
+# def generate_fake_embedding(dim: int = 128) -> list:
+#     return np.random.rand(dim).tolist()
 
 async def add_employee(employee: EmployeeCreate, file: UploadFile, user_id: str):
     try:
         image_url = await upload_to_minio(file)
-        embedding = generate_fake_embedding()
+        # embedding = generate_fake_embedding()
         employee_doc = {
             "name": employee.name,
             "email": employee.email,
@@ -28,7 +28,7 @@ async def add_employee(employee: EmployeeCreate, file: UploadFile, user_id: str)
             "department_id": employee.department_id,
             "department_name": employee.department_name,
             "image_url": image_url,
-            "embedding": embedding,
+            # "embedding": embedding,
             "created_at": current_time_vn_by_timestamp(),
             "user_id": str(user_id)
         }
@@ -124,7 +124,7 @@ async def update_employee(employee_id: str, update_data: dict, file: UploadFile 
                 await delete_from_minio(old_image_url)
             new_image_url = await upload_to_minio(file)
             update_data["image_url"] = new_image_url
-            update_data["embedding"] = generate_fake_embedding()
+            # update_data["embedding"] = generate_fake_embedding()
 
         update_data["updated_at"] = current_time_vn_by_timestamp()
         await collection_employee.update_one({"_id": ObjectId(employee_id)}, {"$set": update_data})
