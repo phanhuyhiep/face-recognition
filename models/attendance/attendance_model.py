@@ -1,0 +1,30 @@
+from pydantic import BaseModel, Field
+from typing import Optional, List
+from bson import ObjectId
+from models.objectid.objectid_model import PyObjectId
+from utils.datetime import current_time_vn_by_timestamp
+
+class AttendanceBase(BaseModel):
+    user_id: str
+    employee_id: Optional[str] = None
+    name: Optional[str] = None
+    department_id: Optional[str] = None
+    department_name: Optional[str] = None
+    check_in: Optional[int] = None
+    check_out: Optional[int] = None
+    check_in_face: Optional[str] = None
+    check_out_face: Optional[str] = None
+
+class AttendanceCreate(AttendanceBase):
+    face_file_url: Optional[str] = None
+    # embedding: Optional[List[float]] = None
+
+class AttendanceDB(AttendanceBase):
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    created_at: int = Field(default_factory=current_time_vn_by_timestamp)
+    updated_at: int = Field(default_factory=current_time_vn_by_timestamp)
+
+    class Config:
+        populate_by_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}

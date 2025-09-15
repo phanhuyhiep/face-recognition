@@ -8,7 +8,6 @@ from models.objectid.objectid_model import PyObjectId
 class UserBase(BaseModel):
     username: str = Field(..., example="hiepph")
     email: str = Field(..., example="hiepph@example.com")
-    department_id: Optional[str] = Field(None, example="64eac12d98f0b1a8e4d9a321")
 
 class TokenResponse(BaseModel):
     access_token: str

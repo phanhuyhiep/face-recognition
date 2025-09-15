@@ -1,16 +1,18 @@
 from passlib.context import CryptContext
-from datetime import datetime, timedelta
+from datetime import datetime
 from jose import JWTError, jwt
 from pymongo import ReturnDocument
 from bson import ObjectId
 from typing import Optional
+from fastapi import HTTPException, Depends, Request
+from fastapi.security import OAuth2PasswordBearer
 
-from utils.format_time import formatTime
 from configs.mongodb_config import MongodbSettings
 from models.user.user_model import UserCreate, UserDB
 from configs.core_config import CoreSettings
 from configs.index import db
 from utils.format_response import formatResponse
+from utils.datetime import current_time_vn_by_timestamp
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -18,7 +20,7 @@ SECRET_KEY = CoreSettings.SECRET_KEY
 ALGORITHM = CoreSettings.ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = CoreSettings.ACCESS_TOKEN_EXPIRE_MINUTES
 
-time = datetime.utcnow()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 collection_user = db["user"]
 
 def get_password_hash(password: str) -> str:
@@ -31,24 +33,44 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def create_access_token(data: dict, expires_minutes: int = ACCESS_TOKEN_EXPIRE_MINUTES):
     to_encode = data.copy()
-    now_ts = formatTime()
-    expire_ts = now_ts + expires_minutes * 60
+    expire_ts = current_time_vn_by_timestamp() + expires_minutes * 60
     to_encode.update({"exp": expire_ts})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
+async def get_current_user(request: Request):
+    try:
+        auth_header = request.headers.get("Authorization")
+        if not auth_header:
+            raise HTTPException(status_code=401, detail="Authorization header missing")
+
+        token = auth_header.strip()
+
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        
+        user = await collection_user.find_one({"_id": ObjectId(user_id)})
+        if not user:
+            raise HTTPException(status_code=401, detail="User not found")
+
+        user["_id"] = str(user["_id"])
+        return UserDB(**user)
+
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
 async def register_user(user: UserCreate):
     existing = await collection_user.find_one({"email": user.email})
     if existing:
-        return {"error": "User already exists"}
+        raise HTTPException(status_code=400, detail="User already exists")
 
     hashed_password = get_password_hash(user.password)
     user_doc = {
         "username": user.username,
         "email": user.email,
-        "department_id": user.department_id,
         "password_hash": hashed_password,
-        "created_at": formatTime(time),
+        "created_at": current_time_vn_by_timestamp(),
     }
 
     result = await collection_user.insert_one(user_doc)
