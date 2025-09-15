@@ -104,7 +104,7 @@ uvicorn main:app --host localhost --port 8000 --reload
 
 ## License
 
-https:hiepph.com
+https://hiepph.com
 
 ## Contributing
 
