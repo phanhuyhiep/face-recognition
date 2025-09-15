@@ -1,5 +1,6 @@
 import numpy as np
 import logging
+import asyncio
 
 from typing import List
 from fastapi import UploadFile, HTTPException
@@ -13,6 +14,7 @@ from utils.format_response import formatResponse
 from models.user.user_model import UserDB
 from configs.core_config import CoreSettings
 from utils.datetime import current_time_vn_by_timestamp
+from test import get_face_similarity, load_face_model
 
 collection_employee = db["employee"]
 collection_attendance = db["attendance"]
@@ -25,26 +27,17 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def generate_fake_embedding(dim: int = 128) -> List[float]:
-    return np.random.rand(dim).tolist()
-
-def cosine_similarity(a: List[float], b: List[float]) -> float:
-    a = np.array(a)
-    b = np.array(b)
-    return float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
-
 async def add_attendance(file: UploadFile, current_user: UserDB):
     try:
         face_image_url = await upload_to_minio(file)
-        query_embedding = generate_fake_embedding()
         employees_cursor = collection_employee.find({"user_id": str(current_user.id)})
         matched_employee = None
         max_sim = 0.0
-
+        model = load_face_model()
         async for emp in employees_cursor:
-            sim = cosine_similarity(emp["embedding"], query_embedding)
-            if sim > max_sim:
-                max_sim = sim
+            similarity = await asyncio.to_thread(get_face_similarity, emp["image_url"], face_image_url, model)
+            if similarity > max_sim:
+                max_sim = similarity
                 matched_employee = emp
         if not matched_employee or max_sim < 0.7:
             logger.info("No matching employee found")

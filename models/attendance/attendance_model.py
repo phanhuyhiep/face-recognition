@@ -17,7 +17,7 @@ class AttendanceBase(BaseModel):
 
 class AttendanceCreate(AttendanceBase):
     face_file_url: Optional[str] = None
-    embedding: Optional[List[float]] = None
+    # embedding: Optional[List[float]] = None
 
 class AttendanceDB(AttendanceBase):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
