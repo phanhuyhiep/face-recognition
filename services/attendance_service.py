@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from typing import Optional
 from models.attendance.attendance_model import AttendanceDB
 from configs.index import db
-from utils.minio_client import upload_to_minio
+from utils.minio_client import upload_to_minio, delete_from_minio
 from utils.format_response import formatResponse
 from models.user.user_model import UserDB
 from configs.core_config import CoreSettings
@@ -40,6 +40,7 @@ async def add_attendance(file: UploadFile, current_user: UserDB):
                 max_sim = similarity
                 matched_employee = emp
         if not matched_employee or max_sim < 0.7:
+            await delete_from_minio(face_image_url)
             logger.info("No matching employee found")
             return formatResponse(
                 data=None,
