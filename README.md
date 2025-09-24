@@ -53,6 +53,7 @@ The project uses the following configuration variables:
 | **MongoDB Collections** | | |
 | `COLLECTION_USER` | `collection_user` | User data collection |
 | `COLLECTION_DEPARTMENT` | `collection_department` | Department data collection |
+| `COLLECTION_EMPLOYEE` | `collection_employee` | Employee data collection |
 | `COLLECTION_FACE` | `collection_face` | Face data collection |
 | **MinIO Configuration** | | |
 | `MINIO_ENDPOINT` | `localhost:9000` | MinIO server endpoint |
@@ -101,6 +102,7 @@ MONGODB_NAME=face-recognition
 # MongoDB Collections
 COLLECTION_USER=collection_user
 COLLECTION_DEPARTMENT=collection_department
+COLLECTION_EMPLOYEE=collection_employee
 COLLECTION_FACE=collection_face
 
 # MinIO Configuration
