@@ -5,14 +5,12 @@ from fastapi import UploadFile, HTTPException, Depends
 from typing import Optional
 from bson import ObjectId
 
-from configs.index import db
 from utils.minio_client import upload_to_minio, delete_from_minio
 from models.employee.employee_model import EmployeeCreate, EmployeeDB
 from utils.format_response import formatResponse
 from services.user_service import get_current_user
 from utils.datetime import current_time_vn_by_timestamp
-
-collection_employee = db["employee"]
+from configs.index import collection_employee
 
 # def generate_fake_embedding(dim: int = 128) -> list:
 #     return np.random.rand(dim).tolist()

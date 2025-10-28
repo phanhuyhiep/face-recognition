@@ -10,9 +10,9 @@ from fastapi.security import OAuth2PasswordBearer
 from configs.mongodb_config import MongodbSettings
 from models.user.user_model import UserCreate, UserDB
 from configs.core_config import CoreSettings
-from configs.index import db
 from utils.format_response import formatResponse
 from utils.datetime import current_time_vn_by_timestamp
+from configs.index import collection_user
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -21,7 +21,6 @@ ALGORITHM = CoreSettings.ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = CoreSettings.ACCESS_TOKEN_EXPIRE_MINUTES
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-collection_user = db["user"]
 
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)

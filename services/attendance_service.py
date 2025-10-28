@@ -8,16 +8,13 @@ from datetime import datetime, timezone
 
 from typing import Optional
 from models.attendance.attendance_model import AttendanceDB
-from configs.index import db
 from utils.minio_client import upload_to_minio, delete_from_minio
 from utils.format_response import formatResponse
 from models.user.user_model import UserDB
 from configs.core_config import CoreSettings
 from utils.datetime import current_time_vn_by_timestamp
 from test import get_face_similarity, load_face_model
-
-collection_employee = db["employee"]
-collection_attendance = db["attendance"]
+from configs.index import collection_employee, collection_attendance
 
 TIME_ZONE = CoreSettings.TIME_ZONE
 
