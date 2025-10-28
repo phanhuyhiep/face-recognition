@@ -10,10 +10,26 @@ logger = logging.getLogger(__name__)
 
 
 # --------- MongoDB ----------
-mongo_client = AsyncIOMotorClient(MongodbSettings.MONGO_URI)
-db = mongo_client[MongodbSettings.MONGODB_NAME]
+try:
+    mongo_client = AsyncIOMotorClient(MongodbSettings.MONGO_URI)
+    db = mongo_client[MongodbSettings.MONGODB_NAME]
+    collections = {
+        name: db[coll_name]
+        for name, coll_name in MongodbSettings.COLLECTIONS.items()
+        if coll_name  # tránh None
+    }
+    collection_user = collections.get("user")
+    collection_department = collections.get("department")
+    collection_attendance = collections.get("attendance")
+    collection_employee = collections.get("employee")
 
-logger.info("Connected to MongoDB")
+    logger.info(f"Connected to MongoDB: {MongodbSettings.MONGODB_NAME}")
+    logger.info(f"Loaded collections: {list(collections.keys())}")
+
+except Exception as e:
+    logger.error(f"Failed to connect MongoDB: {e}")
+    raise
+
 
 
 # --------- MinIO ----------

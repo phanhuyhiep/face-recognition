@@ -8,16 +8,13 @@ from datetime import datetime, timezone
 
 from typing import Optional
 from models.attendance.attendance_model import AttendanceDB
-from configs.index import db
-from utils.minio_client import upload_to_minio
+from utils.minio_client import upload_to_minio, delete_from_minio
 from utils.format_response import formatResponse
 from models.user.user_model import UserDB
 from configs.core_config import CoreSettings
 from utils.datetime import current_time_vn_by_timestamp
 from test import get_face_similarity, load_face_model
-
-collection_employee = db["employee"]
-collection_attendance = db["attendance"]
+from configs.index import collection_employee, collection_attendance
 
 TIME_ZONE = CoreSettings.TIME_ZONE
 
@@ -40,6 +37,7 @@ async def add_attendance(file: UploadFile, current_user: UserDB):
                 max_sim = similarity
                 matched_employee = emp
         if not matched_employee or max_sim < 0.7:
+            await delete_from_minio(face_image_url)
             logger.info("No matching employee found")
             return formatResponse(
                 data=None,
@@ -125,6 +123,7 @@ async def get_attendance(
             page=page,
             limit=limit,
             totalPages=total_pages,
+            totalItems=total_docs,
             success=True,
             status_code=200,
             message="Attendance retrieved successfully"

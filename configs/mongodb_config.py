@@ -19,7 +19,7 @@ class MongodbSettings:
     COLLECTIONS = {
         "user": os.environ.get("COLLECTION_USER"),
         "department": os.environ.get("COLLECTION_DEPARTMENT"),
-        "face": os.environ.get("COLLECTION_FACE"),
+        "attendance": os.environ.get("COLLECTION_ATTENDANCE"),
         "employee": os.environ.get("COLLECTION_EMPLOYEE"),
     }
 

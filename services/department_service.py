@@ -9,11 +9,9 @@ from utils.format_time import formatTime
 from configs.mongodb_config import MongodbSettings
 from models.department.department_model import DepartmentCreate, DepartmentDB
 from configs.core_config import CoreSettings
-from configs.index import db
 from utils.format_response import formatResponse
 from utils.datetime import current_time_vn_by_timestamp
-
-collection_department = db["department"]
+from configs.index import collection_department
 
 async def list_departments(user_id: str, page: int = 1, limit: int = 10, department_id: Optional[str] = None):
     departments = []
@@ -46,6 +44,7 @@ async def list_departments(user_id: str, page: int = 1, limit: int = 10, departm
         page=page if not department_id else 1,
         limit=limit if not department_id else 1,
         totalPages=total_pages,
+        totalItems=total_docs,
         success=True,
         status_code=200,
         message="Departments retrieved successfully"
