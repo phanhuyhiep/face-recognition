@@ -157,7 +157,9 @@ This project is based on and inspired by the following repositories:
 This project is licensed under the **MIT License** - see the [LICENSE](./LICENSE) file for details.
 
 ## Contributing
-Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
+Thanks to these awesome people for their contributions 💪
+
+<a href="https://github.com/phanhuyhiep"><img src="https://avatars.githubusercontent.com/u/95520157?v=4" width="60px" alt="Hiepph"/></a>
 
 ## Support
 For questions and support, please refer to the project documentation or open an issue on the repository.
