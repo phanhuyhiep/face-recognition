@@ -54,7 +54,7 @@ The project uses the following configuration variables:
 | `COLLECTION_USER` | `collection_user` | User data collection |
 | `COLLECTION_DEPARTMENT` | `collection_department` | Department data collection |
 | `COLLECTION_EMPLOYEE` | `collection_employee` | Employee data collection |
-| `COLLECTION_FACE` | `collection_face` | Face data collection |
+| `COLLECTION_ATTENDANCE` | `collection_attendance` | Face data collection |
 | **MinIO Configuration** | | |
 | `MINIO_ENDPOINT` | `localhost:9000` | MinIO server endpoint |
 | `MINIO_ACCESS_KEY` | `minio-access-key` | MinIO access key |
@@ -103,7 +103,7 @@ MONGODB_NAME=face-recognition
 COLLECTION_USER=collection_user
 COLLECTION_DEPARTMENT=collection_department
 COLLECTION_EMPLOYEE=collection_employee
-COLLECTION_FACE=collection_face
+COLLECTION_ATTENDANCE=collection_attendance
 
 # MinIO Configuration
 MINIO_ENDPOINT=localhost:9000
@@ -154,7 +154,7 @@ This project is based on and inspired by the following repositories:
 - https://github.com/MuggleWang/CosFace_pytorch
 
 ## License
-https://hiepph.com
+This project is licensed under the **MIT License** - see the [LICENSE](./LICENSE) file for details.
 
 ## Contributing
 Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
