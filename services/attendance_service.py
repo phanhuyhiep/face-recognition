@@ -126,6 +126,7 @@ async def get_attendance(
             page=page,
             limit=limit,
             totalPages=total_pages,
+            totalItems=total_docs,
             success=True,
             status_code=200,
             message="Attendance retrieved successfully"

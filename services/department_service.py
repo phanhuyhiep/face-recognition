@@ -46,6 +46,7 @@ async def list_departments(user_id: str, page: int = 1, limit: int = 10, departm
         page=page if not department_id else 1,
         limit=limit if not department_id else 1,
         totalPages=total_pages,
+        totalItems=total_docs,
         success=True,
         status_code=200,
         message="Departments retrieved successfully"

@@ -76,6 +76,7 @@ async def get_employees(user_id: str, page: int = 1, limit: int = 10, department
         page=page,
         limit=limit,
         totalPages=total_pages,
+        totalItems=total_docs,
         success=True,
         status_code=200,
         message="Employees retrieved successfully"
